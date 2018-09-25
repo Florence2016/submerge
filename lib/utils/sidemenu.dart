@@ -1,0 +1,4 @@
+enum TabMenu {
+  refresh,
+  exit,
+}
