@@ -3,8 +3,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
-import 'package:submerge/utils/sidemenu.dart';
-import 'package:submerge/utils/subpanel.dart';
+import 'package:submerge/components/drawer.dart';
 import 'package:submerge/utils/subresult.dart';
 import 'package:submerge/utils/suburi.dart';
 import 'package:flutter/services.dart';
@@ -21,7 +20,7 @@ class Submerge extends SubmergeUri {
   _WebViewSubmergeState createState() => _WebViewSubmergeState();
 }
 
-class _WebViewSubmergeState extends State<Submerge> with SingleTickerProviderStateMixin{
+class _WebViewSubmergeState extends State<Submerge> {
   FlutterWebviewPlugin _webviewPlugin = new FlutterWebviewPlugin();
   TextEditingController _textController;
   AnimationController controllerBackdrop;
@@ -34,9 +33,6 @@ class _WebViewSubmergeState extends State<Submerge> with SingleTickerProviderSta
     super.initState();
     _webviewPlugin.close();
 
-    controllerBackdrop = AnimationController(
-        vsync: this,
-        duration: Duration(milliseconds: 100),value: 1.0);
   }
 
   @override
@@ -47,21 +43,16 @@ class _WebViewSubmergeState extends State<Submerge> with SingleTickerProviderSta
     super.dispose();
   }
 
-
-  bool get isPanelVisible{
-    final AnimationStatus status = controllerBackdrop.status;
-    return status == AnimationStatus.completed || status == AnimationStatus.forward;
-  }
-
   @override
   Widget build(BuildContext context) {
+
     appBar = buildAppBar();
 
-    //responsible to update query into url on appbar
     _webviewPlugin.onUrlChanged.listen((String url) {
       widget.uri = Uri.parse(url);
       _textController.text = widget.uri.toString();
     });
+
     //in charge for opening webview search result after enter word on search bar
     if(widget.uri != null) {
       if(_rect == null) {
@@ -70,6 +61,7 @@ class _WebViewSubmergeState extends State<Submerge> with SingleTickerProviderSta
           rect: _rect,
         );
       }
+
       //in charge of too much hard work on the main thread, preventing from hang
       else {
         Rect rect = _buildRect(context, appBar);
@@ -82,26 +74,30 @@ class _WebViewSubmergeState extends State<Submerge> with SingleTickerProviderSta
           });
         }
       }
-      //this is in charge to overlay appbar webview after first query
-      return WebviewScaffold(
-        appBar: buildAppBar(),
-        url: widget.uri.toString(),
+
+      //this is in charge to overlay appbar webview
+      return Scaffold(
+        appBar: buildAppBar2(),
+
       );
     }
-    //this is in charge first build appbar and body of submerge
+    //this is in charge to return appbar and body of submerge
     else return buildHomePage();
   }
 
+
   Widget buildHomePage() {
     return Scaffold(
-        appBar: buildAppBar(),
-        body: Panels(
-          controller: controllerBackdrop,
-        ),
+      endDrawer: SubmergeDrawer(),
+      appBar: buildAppBar(),
+      body: Center(
+        child: Text('Home'),
+      ),
+
     );
   }
 
-  Widget buildAppBar() {
+  Widget buildAppBar2() {
     _textController = new TextEditingController(text: (widget.uri == null) ? "" : widget.uri.toString());
     return AppBar(
       brightness: Brightness.dark,
@@ -112,7 +108,6 @@ class _WebViewSubmergeState extends State<Submerge> with SingleTickerProviderSta
           onPressed: home
       ),
       title: TextField(
-        autofocus: true,
         maxLines: 1,
         keyboardType: TextInputType.url,
         controller: _textController,
@@ -127,18 +122,46 @@ class _WebViewSubmergeState extends State<Submerge> with SingleTickerProviderSta
         ),
         onSubmitted: handleSubmitted,
       ),
+
       actions: <Widget>[
+
         IconButton(
-          icon: Icon(Icons.search, color: Colors.white,),
-          onPressed: null,
-        ),
-        IconButton(
-          icon: Icon(Icons.more_vert, color: Colors.white,),
-          onPressed: () {
-            controllerBackdrop.fling(velocity: isPanelVisible? -1.0: 1.0);
-          }
+            icon: Icon(Icons.more_vert, color: Colors.white,),
+            onPressed: () {
+              widget.uri = null;
+              _webviewPlugin.close();
+              Navigator.pushNamed(context, 'settings');
+            }
         ),
       ],
+    );
+  }
+
+  Widget buildAppBar() {
+    _textController = new TextEditingController(text: (widget.uri == null) ? "" : widget.uri.toString());
+    return AppBar(
+      brightness: Brightness.dark,
+      backgroundColor: Colors.blueGrey[900],
+      titleSpacing: 0.0,
+      leading: IconButton(
+          icon: Icon(Icons.home, color: Colors.white,),
+          onPressed: home
+      ),
+      title: TextField(
+        maxLines: 1,
+        keyboardType: TextInputType.url,
+        controller: _textController,
+        style: TextStyle(fontSize: 16.0,
+            color: Colors.white
+        ),
+
+        decoration: InputDecoration.collapsed(
+            border: InputBorder.none,
+            hintText: "Search or enter URL",
+            hintStyle: TextStyle(fontSize: 16.0, color: Colors.grey[300])
+        ),
+        onSubmitted: handleSubmitted,
+      ),
     );
   }
 
@@ -153,45 +176,26 @@ class _WebViewSubmergeState extends State<Submerge> with SingleTickerProviderSta
   }
 
   Future handleSubmitted(String text) async {
-    //if text field null but go, keyboard auto close no search result
-    if(text.isEmpty) {
-      setState(() => widget.uri = null);
-    }
-    else {
-      search(text);
-      _textController.text = widget.uri.toString();
-      //buildAppBar();
-    }
     print(text);
+    //if text field null but go, keyboard auto close no search result
+
+    search(text);
+    _textController.text = widget.uri.toString();
+
   }
 
   void home() {
     setState(() => widget.uri = null);
     _webviewPlugin.close();
-    controllerBackdrop.fling(velocity: isPanelVisible? 1.0: 1.0);
-  }
-   refresh() {
-    if(widget.uri != null) {
-      _webviewPlugin.reload();
-    }
-  }
-   menuVert() {
-    home();
-    controllerBackdrop.fling(velocity: isPanelVisible? -1.0: 1.0);
   }
 
-  //to load another search query, reload webview
   void relaunch() {
-    if (widget.uri != null) {
-      _webviewPlugin.close();
-      _webviewPlugin.launch(widget.uri.toString(),
-        rect: _rect,
-      );
-      //buildAppBar();
-    }
+    _webviewPlugin.close();
+    _webviewPlugin.launch(widget.uri.toString(),
+      rect: _rect,
+    );
   }
-
-   search(String query) {
+  search(String query) {
     setState(() => widget.uri = Uri.parse("https://"+SearchResult.searchEngine+"/search?q="+query));
     if(_rect != null)
       relaunch();
