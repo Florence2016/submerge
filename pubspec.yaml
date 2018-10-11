@@ -21,7 +21,8 @@ dependencies:
   cupertino_icons: ^0.1.2
   flutter_webview_plugin: 0.2.1+2
   fluro: 1.3.4
-  url_launcher: 3.0.3
+  flutter_inappbrowser: ^0.2.0
+  flutter_custom_tabs: ^0.4.0
   rxdart: 0.18.1
 
 dev_dependencies:
@@ -41,8 +42,11 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #  - images/a_dot_burr.jpeg
+  assets:
+      - assets/gmail.png
+      - assets/facebook.png
+      - assets/youtube.png
+      - assets/searchlock.png
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

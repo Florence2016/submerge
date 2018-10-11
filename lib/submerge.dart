@@ -4,6 +4,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:submerge/components/drawer.dart';
+import 'package:submerge/components/linkbuttons.dart';
 import 'package:submerge/utils/subresult.dart';
 import 'package:submerge/utils/suburi.dart';
 import 'package:flutter/services.dart';
@@ -87,13 +88,126 @@ class _WebViewSubmergeState extends State<Submerge> {
 
 
   Widget buildHomePage() {
+
     return Scaffold(
       endDrawer: SubmergeDrawer(),
       appBar: buildAppBar(),
-      body: Center(
-        child: Text('Home'),
-      ),
+      body:  listViewHome(),
 
+    );
+  }
+
+  Widget listViewHome(){
+    return ListView(
+      children: <Widget>[
+        Padding(padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 100.0),
+          child: Container(
+            child: Column(
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Card(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          IconButton(
+                            icon: Icon(Icons.search),
+                            onPressed: () => print('search click'),
+                          ),
+                          Container(
+                            width: 250.0,
+                            child: TextField(
+                              // controller: _textController,
+                              cursorColor: Colors.blueGrey[100],
+                              decoration:  InputDecoration(
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.all(16.0),
+                                hintText: 'Enter here',
+                              ),
+                              onSubmitted: handleSubmitted,
+                            )
+                            ,
+                          ),
+
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+                Padding(
+                  padding:const EdgeInsets.symmetric(vertical: 100.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
+                    children: <Widget>[
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            SubmergeNewTab.launchGmail(context);
+                            print('gmail click');
+                          },
+                          child: Container(
+                              height: 50.0,
+                              decoration: new BoxDecoration(
+                                color: Colors.blueGrey[900],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Container(
+                                child: Image.asset("assets/gmail.png", fit: BoxFit.contain,width: 10.0,
+                                  height: 10.0,),
+                              )
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            SubmergeNewTab.launchFacebook(context);
+                            print('facebook click');
+                          },
+                          child: Container(
+                              height: 50.0,
+                              decoration: new BoxDecoration(
+                                color: Colors.blueGrey[700],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Container(
+                                height: 10.0,
+                                child: Image.asset("assets/facebook.png", fit: BoxFit.contain, width: 1.0,
+                                  height: 1.0,),
+                              )
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            SubmergeNewTab.launchYoutube(context);
+                            print('youtube click');
+                          },
+                          child: Container(
+                              height: 50.0,
+                              decoration: new BoxDecoration(
+                                color: Colors.blueGrey[500],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Container(
+                                child: Image.asset("assets/youtube.png", fit: BoxFit.contain,width: 10.0,
+                                  height: 10.0,)
+                                ,)
+                          ),
+                        ),
+                      ),
+
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+      ],
     );
   }
 
@@ -136,7 +250,6 @@ class _WebViewSubmergeState extends State<Submerge> {
       ],
     );
   }
-
   Widget buildAppBar() {
     _textController = new TextEditingController(text: (widget.uri == null) ? "" : widget.uri.toString());
     return AppBar(
@@ -164,7 +277,6 @@ class _WebViewSubmergeState extends State<Submerge> {
       ),
     );
   }
-
   Rect _buildRect(BuildContext context, PreferredSizeWidget appBar) {
     bool fullscreen = appBar == null;
     final mediaQuery = MediaQuery.of(context);
@@ -183,12 +295,10 @@ class _WebViewSubmergeState extends State<Submerge> {
     _textController.text = widget.uri.toString();
 
   }
-
   void home() {
     setState(() => widget.uri = null);
     _webviewPlugin.close();
   }
-
   void relaunch() {
     _webviewPlugin.close();
     _webviewPlugin.launch(widget.uri.toString(),
