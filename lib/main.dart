@@ -20,7 +20,7 @@ void main() {
 
   // Run app from splash page!
   runApp(new MaterialApp(
-      title: 'Submerge',
+      title: 'Search Administrator',
       home: Submerge(),
       debugShowCheckedModeBanner: false,
       onGenerateRoute: router.generator // USe our Fluro routers for this app.

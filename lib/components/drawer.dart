@@ -14,7 +14,7 @@ class _SubmergeDrawerState extends State<SubmergeDrawer>{
       child: ListView(
         children: <Widget>[
           DrawerHeader(
-            child: Text('Submerge'),
+            child: Text('Search Administrator'),
           ),
           ListTile(
             title: Text('Settings'),

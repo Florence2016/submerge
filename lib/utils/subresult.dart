@@ -9,12 +9,15 @@ class SearchResult {
 
   static SearchResult get instance => _submergeResult;
 
-  static String searchEngine = SearchEngines["Google"];
+  static String searchEngineYhs = searchEngines["Yahoo"];
+  static String searchEngineBing = searchEngines["Bing"];
+
 }
 
-Map<String, dynamic> SearchEngines = {
+Map<String, dynamic> searchEngines = {
   "Google": "google.com",
-  "Bing": "bing.com",
-  "Yahoo!": "yahoo.com",
+  "Bing": "bing.com/search?c=snt&q=",
+  //"Yahoo": "yahoo.com",
+  "Yahoo": "search.yahoo.com/yhs/search?hspart=sz&hsimp=yhs-001&p=",
   "Searchlock": "searchlock.com",
 };
