@@ -5,24 +5,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:submerge/components/drawer.dart';
 import 'package:submerge/utils/subresult.dart';
-import 'package:submerge/utils/suburi.dart';
+
 import 'package:submerge/components/searchHomebuttons.dart';
 import 'package:flutter/services.dart';
 
-const kAndroidUserAgent =
-    'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36';
+const kAndroidUserAgent = 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Mobile Safari/537.36';
 
-class Submerge extends SubmergeUri {
-  final bool primary;
 
-  Submerge({Key key, Uri uri, this.primary: true}) : super (key: key, uri: uri,);
+// ignore: must_be_immutable
+class Submerge extends StatefulWidget {
+  bool primary = true;
+  Uri uri;
 
   @override
   _WebViewSubmergeState createState() => _WebViewSubmergeState();
 }
 
 class _WebViewSubmergeState extends State<Submerge> {
-  FlutterWebviewPlugin _webviewPlugin = new FlutterWebviewPlugin();
+  FlutterWebviewPlugin _webViewPlugin = new FlutterWebviewPlugin();
   TextEditingController _textController;
   AnimationController controllerBackdrop;
   PreferredSizeWidget appBar;
@@ -32,14 +32,14 @@ class _WebViewSubmergeState extends State<Submerge> {
   @override
   void initState() {
     super.initState();
-    _webviewPlugin.close();
+    _webViewPlugin.close();
 
   }
 
   @override
   void dispose() {
     // Every listener should be canceled, the same should be done with this stream.
-    _webviewPlugin.dispose();
+    _webViewPlugin.dispose();
     _textController.dispose();
     super.dispose();
   }
@@ -49,7 +49,7 @@ class _WebViewSubmergeState extends State<Submerge> {
 
     appBar = buildAppBar();
 
-    _webviewPlugin.onUrlChanged.listen((String url) {
+    _webViewPlugin.onUrlChanged.listen((String url) {
       widget.uri = Uri.parse(url);
       _textController.text = widget.uri.toString();
     });
@@ -58,7 +58,7 @@ class _WebViewSubmergeState extends State<Submerge> {
     if(widget.uri != null) {
       if(_rect == null) {
         _rect = _buildRect(context, appBar);
-        _webviewPlugin.launch(widget.uri.toString(),
+        _webViewPlugin.launch(widget.uri.toString(),
           rect: _rect,
         );
       }
@@ -71,7 +71,7 @@ class _WebViewSubmergeState extends State<Submerge> {
           _resizeTimer?.cancel();
           _resizeTimer = new Timer(new Duration(milliseconds: 300), () {
             // avoid resizing to fast when build is called multiple time
-            _webviewPlugin.resize(_rect);
+            _webViewPlugin.resize(_rect);
           });
         }
       }
@@ -310,7 +310,7 @@ class _WebViewSubmergeState extends State<Submerge> {
             icon: Icon(Icons.more_vert, color: Colors.grey,),
             onPressed: () {
               widget.uri = null;
-              _webviewPlugin.close();
+              _webViewPlugin.close();
               Navigator.pushNamed(context, 'settings');
             }
         ),
@@ -372,11 +372,11 @@ class _WebViewSubmergeState extends State<Submerge> {
 
   void home() {
     setState(() => widget.uri = null);
-    _webviewPlugin.close();
+    _webViewPlugin.close();
   }
   void relaunch() {
-    _webviewPlugin.close();
-    _webviewPlugin.launch(widget.uri.toString(),
+    _webViewPlugin.close();
+    _webViewPlugin.launch(widget.uri.toString(),
       rect: _rect,
     );
   }

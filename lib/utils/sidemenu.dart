@@ -1,4 +1,0 @@
-enum TabMenu {
-  refresh,
-  exit,
-}
