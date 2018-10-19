@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:submerge/components/drawer.dart';
 import 'package:submerge/utils/subresult.dart';
-
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:submerge/components/searchHomebuttons.dart';
 import 'package:flutter/services.dart';
 
@@ -28,12 +28,13 @@ class _WebViewSubmergeState extends State<Submerge> {
   PreferredSizeWidget appBar;
   Rect _rect;
   Timer _resizeTimer;
+  List<DropdownMenuItem<String>> listSearch = [];
+  String selected;
 
   @override
   void initState() {
     super.initState();
     _webViewPlugin.close();
-
   }
 
   @override
@@ -79,7 +80,6 @@ class _WebViewSubmergeState extends State<Submerge> {
       //this is in charge to overlay appbar webview
       return Scaffold(
         appBar: buildAppBar2(),
-
       );
     }
     //this is in charge to return appbar and body of submerge
@@ -98,30 +98,7 @@ class _WebViewSubmergeState extends State<Submerge> {
   }
 
   Widget listViewHome(){
-
-    List<DropdownMenuItem<int>> listSearch = [];
-    int selectedSearch;
-    listSearch.add(DropdownMenuItem(
-      child:IconButton(
-        icon: Image.asset("assets/bing.png"),
-        onPressed: () => print('bing click'),
-      ),
-      value:1,
-    ));
-    listSearch.add(DropdownMenuItem(
-      child:IconButton(
-        icon: Image.asset("assets/yahoo.png"),
-        onPressed: () => print('yahoo click'),
-      ),
-      value: 2,
-    ));
-    listSearch.add(DropdownMenuItem(
-      child:IconButton(
-        icon: Image.asset("assets/searchlock.png"),
-        onPressed: () => print('searchlock click'),
-      ),
-      value: 3,
-    ));
+    addItemSearch();
 
     return Container(
       decoration: BoxDecoration(
@@ -141,134 +118,18 @@ class _WebViewSubmergeState extends State<Submerge> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            DropdownButtonHideUnderline(
-                              child: Center(
-                                  child: ButtonTheme(
-                                    alignedDropdown: true,
-                                    child: Container(
-                                      height: 50.0,
-                                      child: DropdownButton(
-                                        items: listSearch,
-                                        value: selectedSearch,
-                                        hint: listSearch[1],
-                                        onChanged: (value) {
-                                          print('Selected item : $value');
-                                          selectedSearch = value;
-                                          setState(() {
-                                          });
-                                        } ,
-                                      ),
-                                    ),
-                                  )
-                              ),
-                            ),
-                            Container(
-                              width: 230.0,
-                              child: TextField(
-                                // controller: _textController,
-                                cursorColor: Colors.blueGrey[100],
-                                decoration:  InputDecoration(
-                                  border: InputBorder.none,
-                                  contentPadding: EdgeInsets.all(16.0),
-                                  hintText: 'Enter here',
-                                ),
-                                onSubmitted: handleSubmittedBing,
-                              )
-                              ,
-                            ),
+                            dropListSearch(),
 
+                            Container(
+                              width: 240.0,
+                              child:  enterSearch(),
+                            ),
                           ],
                         ),
                       )
                     ],
                   ),
-                  Padding(
-                    padding:const EdgeInsets.symmetric(vertical: 100.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-
-                      children: <Widget>[
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              SubmergeNewTab.launchGmail(context);
-                              print('gmail click');
-                            },
-                            child: Container(
-                                height: 50.0,
-                                decoration: new BoxDecoration(
-                                  color: Colors.blueGrey[900],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Container(
-                                  child: Image.asset("assets/gmail.png", fit: BoxFit.contain,width: 10.0,
-                                    height: 10.0,),
-                                )
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              SubmergeNewTab.launchFacebook(context);
-                              print('facebook click');
-                            },
-                            child: Container(
-                                height: 50.0,
-                                decoration: new BoxDecoration(
-                                  color: Colors.blueGrey[700],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Container(
-                                  height: 10.0,
-                                  child: Image.asset("assets/facebook.png", fit: BoxFit.contain, width: 1.0,
-                                    height: 1.0,),
-                                )
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              SubmergeNewTab.launchYoutube(context);
-                              print('youtube click');
-                            },
-                            child: Container(
-                                height: 50.0,
-                                decoration: new BoxDecoration(
-                                  color: Colors.blueGrey[500],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Container(
-                                  child: Image.asset("assets/youtube.png", fit: BoxFit.contain,width: 10.0,
-                                    height: 10.0,)
-                                  ,)
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () {
-                              SubmergeNewTab.launchSearchlock(context);
-                              print('searchlock click');
-                            },
-                            child: Container(
-                                height: 50.0,
-                                decoration: new BoxDecoration(
-                                  color: Colors.blueGrey[500],
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Container(
-                                  child: Image.asset("assets/searchlock.png", fit: BoxFit.contain,width: 10.0,
-                                    height: 10.0,)
-                                  ,)
-                            ),
-                          ),
-                        ),
-
-                      ],
-                    ),
-                  ),
+                  homeRowButtons(),
                 ],
               ),
             ),
@@ -277,7 +138,190 @@ class _WebViewSubmergeState extends State<Submerge> {
       ),
     );
   }
+  String selectedSearch;
+  Widget enterSearch(){
+    String changeSearchResult = selectedSearch;
 
+    switch(changeSearchResult){
+
+      case "Bing" :
+        return TextField(
+          // controller: _textController,
+          cursorColor: Colors.blueGrey[100],
+          decoration:  InputDecoration(
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.all(16.0),
+            hintText: 'Enter here',
+          ),
+          onSubmitted: handleSubmittedBing,
+
+        );
+        break;
+      case "Yahoo":
+        return TextField(
+          // controller: _textController,
+          cursorColor: Colors.blueGrey[100],
+          decoration:  InputDecoration(
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.all(16.0),
+            hintText: 'Enter here',
+          ),
+          onSubmitted: handleSubmittedYhs,
+
+        );
+        break;
+      case "Searchlock":
+        return TextField(
+          // controller: _textController,
+          cursorColor: Colors.blueGrey[100],
+          decoration:  InputDecoration(
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.all(16.0),
+            hintText: 'Enter here',
+          ),
+          onSubmitted: handleSubmittedSearchlock,
+
+        );
+        break;
+
+      default:
+        return TextField(
+          // controller: _textController,
+          cursorColor: Colors.blueGrey[100],
+          decoration:  InputDecoration(
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.all(16.0),
+            hintText: 'Enter here',
+          ),
+          onSubmitted: handleSubmittedGoogle,
+
+        );
+        break;
+    }
+
+  }
+  Widget dropListSearch(){
+    return DropdownButtonHideUnderline(
+      child: Center(
+          child: ButtonTheme(
+            alignedDropdown: true,
+            child: Container(
+              height: 50.0,
+              child: DropdownButton(
+                value: selected,
+                items: listSearch,
+                hint: Image.asset("assets/google.png", height: 30.0,width: 30.0,),
+                onChanged: (value) {
+                  print('Selected $value');
+                  selected = value;
+
+                  Fluttertoast.showToast(
+                    msg: "$selected",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIos: 1,
+                    bgcolor: "#0d0f7c",
+                  );
+                  setState(() {
+                    selectedSearch = selected;
+                  });
+                },
+              ),
+            ),
+          )
+      ),
+    );
+
+  }
+  Widget homeRowButtons(){
+    return Padding(
+      padding:const EdgeInsets.symmetric(vertical: 100.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
+        children: <Widget>[
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                SubmergeNewTab.launchGmail(context);
+                print('gmail click');
+              },
+              child: Container(
+                  height: 50.0,
+                  decoration: new BoxDecoration(
+                    color: Colors.blueGrey[900],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(
+                    child: Image.asset("assets/gmail.png", fit: BoxFit.contain,width: 10.0,
+                      height: 10.0,),
+                  )
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                SubmergeNewTab.launchFacebook(context);
+                print('facebook click');
+              },
+              child: Container(
+                  height: 50.0,
+                  decoration: new BoxDecoration(
+                    color: Colors.blueGrey[700],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(
+                    height: 10.0,
+                    child: Image.asset("assets/facebook.png", fit: BoxFit.contain, width: 1.0,
+                      height: 1.0,),
+                  )
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                SubmergeNewTab.launchYoutube(context);
+                print('youtube click');
+              },
+              child: Container(
+                  height: 50.0,
+                  decoration: new BoxDecoration(
+                    color: Colors.blueGrey[500],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(
+                    child: Image.asset("assets/youtube.png", fit: BoxFit.contain,width: 10.0,
+                      height: 10.0,)
+                    ,)
+              ),
+            ),
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                SubmergeNewTab.launchSearchlock(context);
+                print('searchlock click');
+              },
+              child: Container(
+                  height: 50.0,
+                  decoration: new BoxDecoration(
+                    color: Colors.blueGrey[500],
+                    shape: BoxShape.circle,
+                  ),
+                  child: Container(
+                    child: Image.asset("assets/searchlock.png", fit: BoxFit.contain,width: 10.0,
+                      height: 10.0,)
+                    ,)
+              ),
+            ),
+          ),
+
+        ],
+      ),
+    );
+  }
   Widget buildAppBar2() {
     _textController = new TextEditingController(text: (widget.uri == null) ? "" : widget.uri.toString());
     return AppBar(
@@ -368,6 +412,23 @@ class _WebViewSubmergeState extends State<Submerge> {
     //if text field null but go, keyboard auto close no search result
     searchBing(text);
     _textController.text = widget.uri.toString();
+
+  }
+  Future handleSubmittedGoogle(String text) async {
+    print(text);
+    _textController.clear();
+    //if text field null but go, keyboard auto close no search result
+    searchGoogle(text);
+    _textController.text = widget.uri.toString();
+
+  }
+  Future handleSubmittedSearchlock(String text) async {
+    print(text);
+    _textController.clear();
+    //if text field null but go, keyboard auto close no search result
+    searchSearchlock(text);
+    _textController.text = widget.uri.toString();
+
   }
 
   void home() {
@@ -381,7 +442,6 @@ class _WebViewSubmergeState extends State<Submerge> {
     );
   }
   searchYhs(String query) {
-    //setState(() => widget.uri = Uri.parse("https://"+SearchResult.searchEngine+"/search?q="+query));
     setState(() => widget.uri = Uri.parse("https://"+SearchResult.searchEngineYhs+query));
     if(_rect != null)
       relaunch();
@@ -390,6 +450,40 @@ class _WebViewSubmergeState extends State<Submerge> {
     setState(() => widget.uri = Uri.parse("https://"+SearchResult.searchEngineBing+query+"&chnm=store&ref=sa-tab&sr=newtab-sb"));
     if(_rect != null)
       relaunch();
+  }
+  searchGoogle(String query) {
+    setState(() => widget.uri = Uri.parse("https://"+SearchResult.searchEngineGoogle+"/search?q="+query));
+    if(_rect != null)
+      relaunch();
+  }
+  searchSearchlock(String query) {
+    setState(() => widget.uri = Uri.parse("https://"+SearchResult.searchEngineSearchlock+"/search?q="+query));
+    if(_rect != null)
+      relaunch();
+  }
+
+  void addItemSearch(){
+    listSearch = [];
+    listSearch.add(DropdownMenuItem(
+      child:Center(child: Image.asset("assets/google.png", height: 30.0,width: 30.0,)),
+      //child:Center(child: Text('Bing')),
+      value:"Google",
+    ));
+    listSearch.add(DropdownMenuItem(
+      child:Center(child: Image.asset("assets/bing.png", height: 30.0,width: 30.0,)),
+      //child:Center(child: Text('Bing')),
+      value:"Bing",
+    ));
+    listSearch.add(DropdownMenuItem(
+      child:Center(child: Image.asset("assets/yahoo.png", height: 30.0,width: 30.0,)),
+      //child:Center(child: Text('Yahoo')),
+      value:"Yahoo",
+    ));
+    listSearch.add(DropdownMenuItem(
+      child:Center(child: Image.asset("assets/searchlock.png", height: 30.0,width: 30.0,)),
+      //child:Center(child: Text('SL')),
+      value:"Searchlock",
+    ));
   }
 
 }

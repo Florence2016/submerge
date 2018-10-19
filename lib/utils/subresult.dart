@@ -11,6 +11,8 @@ class SearchResult {
 
   static String searchEngineYhs = searchEngines["Yahoo"];
   static String searchEngineBing = searchEngines["Bing"];
+  static String searchEngineGoogle = searchEngines["Google"];
+  static String searchEngineSearchlock = searchEngines["Searchlock"];
 
 }
 

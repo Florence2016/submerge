@@ -24,6 +24,7 @@ dependencies:
   flutter_inappbrowser: ^0.2.0
   flutter_custom_tabs: ^0.4.0
   rxdart: 0.18.1
+  fluttertoast: 2.0.9
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +50,7 @@ flutter:
       - assets/searchlock.png
       - assets/bing.png
       - assets/yahoo.png
+      - assets/google.png
       - assets/panda.png
   #  - images/a_dot_ham.jpeg
 
